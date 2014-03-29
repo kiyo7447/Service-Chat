@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.0.3.min.js"></script>
+    <!--
+    <script src="~/signalr/hubs"></script>
+    <script src="signalr/hubs"></script>
+    -->
+    <script>
+        $(function () {
+            var connection = $.hubConnection();
+            var echo = connection.createHubProxy("/system/chat");
+
+            echo.on("Receive", function (text) {
+                $("#list").append("<li>" + text + "</li>");
+            });
+
+
+            $("#send").click(function () {
+                var message = $("#message").val();
+
+                echo.invoke("SendAll", message).done(function () {
+                    $("#message").val("");
+                });
+            });
+
+            connection.start(function () {
+                $("#send").prop("disabled", false);
+            });
+
+
+            var connection2 = $.hubConnection();
+            var echo2 = connection2.createHubProxy("/system/chat2");
+
+            echo2.on("Receive", function (text, text2) {
+                $("#list2").append("<li>" + text + ":" + text2 + "</li>");
+            });
+
+            $("#send2").click(function () {
+                var message = $("#message2").val();
+
+                echo2.invoke("SendAll", message, 4936).done(function () {
+                    $("#message2").val("");
+                });
+            });
+
+            connection2.start(function () {
+                $("#send2").prop("disabled", false);
+            });
+        })
+    </script>
+</head>
+<body>
+    <div>
+        <input type="text" id="message" />
+        <input type="button" id="send" value="送信" disabled="disabled" />
+
+        <ul id="list"></ul>
+    </div>
+    <div>
+        <input type="text" id="message2" />
+        <input type="button" id="send2" value="送信" disabled="disabled" />
+
+        <ul id="list2"></ul>
+    </div>
+</body>
+</html>
